@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Blackjack Royale · Cassino Moderno</title>
+    <title>JackJoker · Cassino Moderno</title>
     <style>
         * {
             margin: 0;
@@ -32,6 +32,8 @@
             padding: 24px;
             box-shadow: 0 30px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(212, 175, 55, 0.3), 0 0 40px rgba(212, 175, 55, 0.15);
             border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
         .screen {
@@ -184,6 +186,7 @@
 
         #game-screen {
             gap: 16px;
+            position: relative;
         }
 
         .casino-table {
@@ -379,8 +382,6 @@
 
         .side-bet-indicator {
             font-size: 0.7rem;
-            color: #ffd966;
-            background: rgba(0,0,0,0.6);
             padding: 2px 8px;
             border-radius: 12px;
             margin-top: 4px;
@@ -388,7 +389,12 @@
             font-weight: 600;
             text-align: center;
             max-width: 100%;
+            background: rgba(0,0,0,0.6);
         }
+
+        .side-bet-indicator.win { color: #6fcf97; border-color: #6fcf97; }
+        .side-bet-indicator.lose { color: #cf6f6f; border-color: #cf6f6f; }
+        .side-bet-indicator.push { color: #f9e2a1; border-color: #f9e2a1; }
 
         .hand-value {
             font-weight: 800;
@@ -478,87 +484,74 @@
             width: 100%;
         }
 
-        /* Nova seção: Aposta em outro jogador */
+        /* Seção de Apostas Laterais em Múltiplos Jogadores */
         .side-bet-section {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 10px;
-            padding: 12px 18px;
+            padding: 14px 18px;
             background: rgba(212, 175, 55, 0.08);
             border: 1px dashed #d4af37;
-            border-radius: 16px;
+            border-radius: 20px;
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
         }
 
         .side-bet-section .section-label {
             color: #ffd966;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             letter-spacing: 2px;
             width: 100%;
             text-align: center;
-            margin-bottom: 4px;
         }
 
-        .side-bet-select {
-            background: #1a2a1e;
-            color: #f9e2a1;
-            border: 2px solid #5a4a2a;
-            border-radius: 30px;
-            padding: 8px 16px;
-            font-weight: 600;
+        .side-bets-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .side-bet-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #5a4a2a;
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-width: 220px;
+            flex: 1 1 220px;
+            max-width: 280px;
+            transition: all 0.2s ease;
+        }
+
+        .side-bet-card.active-bet {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .side-bet-bot-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .side-bet-bot-name {
             font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-            min-width: 180px;
-        }
-
-        .side-bet-select:hover:not(:disabled) {
-            border-color: #d4af37;
-        }
-
-        .side-bet-select:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .side-bet-select option {
-            background: #1a2a1e;
+            font-weight: 700;
             color: #f9e2a1;
         }
 
-        .side-bet-toggle {
-            background: linear-gradient(145deg, #3a2a4a, #1a1a2a);
-            border: 2px solid #7a5a9a;
-            border-radius: 30px;
-            padding: 8px 16px;
-            color: #e0c8ff;
-            font-weight: 700;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .side-bet-toggle.active {
-            background: linear-gradient(145deg, #6b4ea6, #3a2a5a);
-            border-color: #d4af37;
-            color: #fff0c0;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-        }
-
-        .side-bet-toggle:hover:not(:disabled) {
-            transform: translateY(-1px);
-        }
-
-        .side-bet-toggle:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+        .side-bet-bot-bal {
+            font-size: 0.7rem;
+            color: #b9a77a;
         }
 
         .action-btn {
@@ -665,6 +658,151 @@
             transition: all 0.3s ease;
         }
 
+        /* OVERLAY DE ANIMAÇÃO FINANCEIRA E CONTAGEM REGRESSIVA */
+        .financial-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            border-radius: 48px;
+        }
+
+        .financial-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .financial-card {
+            background: linear-gradient(145deg, #1e3d2b, #0f2a1b);
+            border: 3px solid #d4af37;
+            border-radius: 28px;
+            padding: 24px 32px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(212, 175, 55, 0.4);
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 480px;
+            width: 90%;
+        }
+
+        .financial-overlay.active .financial-card {
+            transform: scale(1);
+        }
+
+        .financial-card.win {
+            border-color: #6fcf97;
+            background: linear-gradient(145deg, #1b4d2e, #0a2917);
+            box-shadow: 0 0 40px rgba(111, 207, 151, 0.5), 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        .financial-card.lose {
+            border-color: #eb5757;
+            background: linear-gradient(145deg, #4d1b1b, #290a0a);
+            box-shadow: 0 0 40px rgba(235, 87, 87, 0.5), 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        .financial-card.neutral {
+            border-color: #d4af37;
+            background: linear-gradient(145deg, #2e2b1b, #17150a);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4), 0 20px 50px rgba(0,0,0,0.9);
+        }
+
+        .financial-title {
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #b9a77a;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .financial-value {
+            font-size: 3rem;
+            font-weight: 900;
+            margin: 8px 0 12px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+
+        .financial-card.win .financial-value {
+            color: #6fcf97;
+            text-shadow: 0 0 20px rgba(111, 207, 151, 0.8);
+        }
+
+        .financial-card.lose .financial-value {
+            color: #eb5757;
+            text-shadow: 0 0 20px rgba(235, 87, 87, 0.8);
+        }
+
+        .financial-card.neutral .financial-value {
+            color: #f9e2a1;
+            text-shadow: 0 0 20px rgba(249, 226, 161, 0.8);
+        }
+
+        .financial-details {
+            font-size: 0.85rem;
+            color: #cbbf9f;
+            margin: 10px 0 14px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(0,0,0,0.4);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: left;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .financial-details-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .countdown-box {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #b9a77a;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .countdown-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #f9e2a1;
+            line-height: 1;
+            animation: countPulse 1s infinite;
+        }
+
+        @keyframes countPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
         @media (max-width: 800px) {
             #app { padding: 12px; border-radius: 24px; }
             .logo-area h1 { font-size: 2.5rem; }
@@ -680,7 +818,9 @@
             .player-seat { min-width: 120px; padding: 8px; }
             .bet-amount { font-size: 1rem; min-width: 60px; }
             .message-box { font-size: 0.9rem; padding: 10px 16px; }
-            .side-bet-select { font-size: 0.75rem; padding: 6px 12px; min-width: 140px; }
+            .financial-value { font-size: 2.2rem; }
+            .financial-card { padding: 16px 20px; }
+            .side-bet-card { min-width: 100%; }
         }
 
         @media (max-width: 500px) {
@@ -692,8 +832,6 @@
             .balance-badge, .bet-badge, .side-bet-badge { font-size: 0.6rem; padding: 2px 6px; }
             .hand-value { font-size: 0.9rem; padding: 2px 8px; }
             .action-btn { padding: 6px 10px; font-size: 0.7rem; min-width: 60px; }
-            .side-bet-select { font-size: 0.7rem; padding: 4px 8px; min-width: 120px; }
-            .side-bet-toggle { padding: 6px 10px; font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -702,7 +840,7 @@
     <!-- TELA INICIAL -->
     <div id="menu-screen" class="screen active">
         <div class="logo-area">
-            <h1>BLACKJACK</h1>
+            <h1>JACKJOKER</h1>
             <div class="sub">ROYALE</div>
         </div>
         <div class="description">
@@ -738,18 +876,10 @@
                 <button class="action-btn" id="confirmBetBtn" style="background: linear-gradient(145deg, #b8860b, #7a5c1e); border-color: #f9e2a1; color: #1a1a0a;" disabled>APOSTAR</button>
             </div>
 
-            <!-- NOVO: Aposta em outro jogador -->
+            <!-- Apostas Laterais em Múltiplos Jogadores -->
             <div class="side-bet-section" id="sideBetSection" style="display: none;">
-                <div class="section-label">🎯 Aposta Lateral — Aposte em outro jogador (paga 2:1)</div>
-                <button class="side-bet-toggle" id="sideBetToggle">ATIVAR</button>
-                <select class="side-bet-select" id="sideBetTarget" disabled>
-                    <option value="">— Escolha um jogador —</option>
-                </select>
-                <div class="bet-controls">
-                    <button class="bet-btn" id="sideBetMinus" disabled>−</button>
-                    <span class="bet-amount" id="sideBetDisplay">R$ 0</span>
-                    <button class="bet-btn" id="sideBetPlus" disabled>+</button>
-                </div>
+                <div class="section-label">🎯 APOSTAS LATERAIS EM OUTROS JOGADORES (PAGA 2:1 / BJ 2.5:1)</div>
+                <div class="side-bets-container" id="sideBetsContainer"></div>
             </div>
 
             <!-- Ações -->
@@ -764,6 +894,19 @@
             <div class="controls-row" id="roundResultControls" style="display: none;">
                 <button class="action-btn" id="newRoundBtn" style="background: linear-gradient(145deg, #d4af37, #a67c1e); color: #1a1a0a; border-color: #f9e2a1;">NOVA RODADA</button>
                 <button class="action-btn" id="backToMenuBtn" style="background: #2a2a2a; border-color: #b9a77a;">MENU</button>
+            </div>
+        </div>
+
+        <!-- OVERLAY FINANCEIRO DE FIM DE RODADA -->
+        <div id="financialOverlay" class="financial-overlay">
+            <div class="financial-card" id="financialCard">
+                <div class="financial-title" id="financialTitle">RESULTADO DA RODADA</div>
+                <div class="financial-value" id="financialValue">+ R$ 0,00</div>
+                <div class="financial-details" id="financialDetails"></div>
+                <div class="countdown-box" id="countdownBox">
+                    <span class="countdown-label">PRÓXIMA RODADA EM</span>
+                    <span class="countdown-number" id="countdownNumber">5</span>
+                </div>
             </div>
         </div>
     </div>
@@ -829,12 +972,11 @@
         dealerTurn: false,
         minBet: 10,
         maxBet: 500,
-        // === NOVO: Aposta lateral ===
-        sideBet: {
-            active: false,
-            targetId: null,   // id do jogador alvo (1..N-1)
-            amount: 0,
-        },
+        sideBets: {},            // Mapeamento botId -> valor apostado
+        sideBetsResults: [],     // Resultados detalhados das apostas laterais
+        initialHumanBalance: 0,  // Saldo do jogador antes do início da rodada
+        countdownTimer: null,
+        countdownValue: 5,
     };
 
     // ==================== ELEMENTOS DOM ====================
@@ -859,13 +1001,16 @@
     const splitBtn = document.getElementById('splitBtn');
     const newRoundBtn = document.getElementById('newRoundBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
-    // Novos elementos
     const sideBetSection = document.getElementById('sideBetSection');
-    const sideBetToggle = document.getElementById('sideBetToggle');
-    const sideBetTarget = document.getElementById('sideBetTarget');
-    const sideBetMinus = document.getElementById('sideBetMinus');
-    const sideBetPlus = document.getElementById('sideBetPlus');
-    const sideBetDisplay = document.getElementById('sideBetDisplay');
+    const sideBetsContainer = document.getElementById('sideBetsContainer');
+
+    // Overlay de animação
+    const financialOverlay = document.getElementById('financialOverlay');
+    const financialCard = document.getElementById('financialCard');
+    const financialTitle = document.getElementById('financialTitle');
+    const financialValue = document.getElementById('financialValue');
+    const financialDetails = document.getElementById('financialDetails');
+    const countdownNumber = document.getElementById('countdownNumber');
 
     // ==================== PERSONALIDADES DOS BOTS ====================
     const BOT_PERSONALITIES = [
@@ -876,6 +1021,27 @@
         { name: 'Bot Estrategista', type: 'balanced' },
         { name: 'Bot Ousado', type: 'aggressive' },
     ];
+
+    // ==================== FUNÇÕES DE CÁLCULO DE APOSTAS ====================
+    function getTotalSideBets() {
+        let total = 0;
+        for (let botId in state.sideBets) {
+            total += state.sideBets[botId] || 0;
+        }
+        return total;
+    }
+
+    function getTotalAllBets() {
+        const human = state.players[0];
+        const mainBet = human ? human.bet : 0;
+        return mainBet + getTotalSideBets();
+    }
+
+    function getRemainingBalance() {
+        const human = state.players[0];
+        if (!human) return 0;
+        return human.balance - getTotalAllBets();
+    }
 
     // ==================== TELA INICIAL ====================
     function renderPlayerSelector() {
@@ -913,7 +1079,9 @@
         state.bettingPhase = true;
         state.dealerTurn = false;
         state.turnIndex = 0;
-        state.sideBet = { active: false, targetId: null, amount: 0 };
+        state.sideBets = {};
+        state.sideBetsResults = [];
+        stopCountdown();
 
         // Humano
         state.players.push({
@@ -929,7 +1097,6 @@
             result: null,
             personality: null,
             hasActed: false,
-            sideBetIncome: 0,   // NOVO: ganho/perda da aposta lateral
         });
 
         // Bots
@@ -948,7 +1115,6 @@
                 result: null,
                 personality: p.type,
                 hasActed: false,
-                sideBetIncome: 0,
             });
         }
 
@@ -957,6 +1123,9 @@
 
     // ==================== FASE DE APOSTAS ====================
     function startBettingPhase() {
+        stopCountdown();
+        hideFinancialAnimation();
+
         state.bettingPhase = true;
         state.roundActive = false;
         state.dealerTurn = false;
@@ -965,9 +1134,8 @@
         state.dealer.hidden = true;
         state.dealer.status = 'waiting';
         state.dealer.value = 0;
-
-        // Resetar aposta lateral
-        state.sideBet = { active: false, targetId: null, amount: 0 };
+        state.sideBets = {};
+        state.sideBetsResults = [];
 
         // Resetar jogadores
         for (let p of state.players) {
@@ -977,7 +1145,6 @@
             p.bet = 0;
             p.result = null;
             p.hasActed = false;
-            p.sideBetIncome = 0;
             p.status = p.balance >= state.minBet ? 'betting' : 'out';
         }
 
@@ -1011,124 +1178,94 @@
             human.status = 'out';
         }
 
-        // Preparar aposta lateral
-        const bots = state.players.filter(p => p.isBot);
-        if (bots.length > 0 && human.balance > state.minBet) {
-            sideBetSection.style.display = 'flex';
-            populateSideBetTargets(bots);
-        } else {
-            sideBetSection.style.display = 'none';
-        }
-        updateSideBetUI();
-
         messageBox.textContent = human.balance >= state.minBet
             ? 'Escolha sua aposta e clique em APOSTAR.'
-            : 'Você está sem saldo suficiente. Aguarde ou volte ao menu.';
+            : 'Você está sem saldo suficiente. Voltando ao menu...';
+
+        if (human.balance < state.minBet) {
+            setTimeout(backToMenu, 2000);
+            return;
+        }
 
         updateBetDisplay();
         renderTable();
     }
 
-    function populateSideBetTargets(bots) {
-        // Preservar seleção atual se possível
-        const prev = sideBetTarget.value;
-        sideBetTarget.innerHTML = '<option value="">— Escolha um jogador —</option>';
-        bots.forEach(b => {
-            const opt = document.createElement('option');
-            opt.value = b.id;
-            opt.textContent = `${b.name} (R$ ${b.balance.toFixed(0)})`;
-            sideBetTarget.appendChild(opt);
-        });
-        if (prev && bots.some(b => String(b.id) === prev)) {
-            sideBetTarget.value = prev;
-            state.sideBet.targetId = parseInt(prev);
+    function renderSideBetControls() {
+        sideBetsContainer.innerHTML = '';
+        const bots = state.players.filter(p => p.isBot && p.status !== 'out');
+        const human = state.players[0];
+
+        if (bots.length === 0 || !human || human.balance < state.minBet) {
+            sideBetSection.style.display = 'none';
+            return;
         }
+
+        sideBetSection.style.display = 'flex';
+
+        bots.forEach(bot => {
+            const betAmount = state.sideBets[bot.id] || 0;
+            const card = document.createElement('div');
+            card.className = `side-bet-card ${betAmount > 0 ? 'active-bet' : ''}`;
+
+            const rem = getRemainingBalance();
+            const canPlus = human.status === 'betting' && rem >= 10;
+            const canMinus = human.status === 'betting' && betAmount >= 10;
+
+            card.innerHTML = `
+                <div class="side-bet-bot-info">
+                    <div class="side-bet-bot-name">${bot.name}</div>
+                    <div class="side-bet-bot-bal">Saldo: R$ ${bot.balance.toFixed(0)}</div>
+                </div>
+                <div class="bet-controls">
+                    <button class="bet-btn sb-minus" ${!canMinus ? 'disabled' : ''}>−</button>
+                    <span class="bet-amount" style="font-size: 0.95rem; min-width: 60px;">R$ ${betAmount}</span>
+                    <button class="bet-btn sb-plus" ${!canPlus ? 'disabled' : ''}>+</button>
+                </div>
+            `;
+
+            card.querySelector('.sb-minus').addEventListener('click', () => {
+                if (human.status !== 'betting') return;
+                state.sideBets[bot.id] = Math.max(0, (state.sideBets[bot.id] || 0) - 10);
+                updateBetDisplay();
+                renderTable();
+            });
+
+            card.querySelector('.sb-plus').addEventListener('click', () => {
+                if (human.status !== 'betting') return;
+                if (getRemainingBalance() >= 10) {
+                    state.sideBets[bot.id] = (state.sideBets[bot.id] || 0) + 10;
+                    updateBetDisplay();
+                    renderTable();
+                }
+            });
+
+            sideBetsContainer.appendChild(card);
+        });
     }
 
     function updateBetDisplay() {
         const human = state.players[0];
+        if (!human) return;
         betDisplay.textContent = `R$ ${human.bet}`;
         updateBetButtons();
+        renderSideBetControls();
     }
 
     function updateBetButtons() {
         const human = state.players[0];
-        const active = human.status === 'betting' && human.balance >= state.minBet;
-        betMinus.disabled = !active || human.bet <= state.minBet;
-        betPlus.disabled = !active || human.bet >= human.balance;
+        if (!human) return;
 
-        // Saldo disponível considerando a aposta lateral
-        const sideBetCost = state.sideBet.active ? state.sideBet.amount : 0;
-        const totalCost = human.bet + sideBetCost;
+        const rem = getRemainingBalance();
+        const active = human.status === 'betting' && human.balance >= state.minBet;
+
+        betMinus.disabled = !active || human.bet <= state.minBet;
+        betPlus.disabled = !active || rem < 10;
+
+        const totalAllBets = getTotalAllBets();
         confirmBetBtn.disabled = !active ||
                                  human.bet < state.minBet ||
-                                 totalCost > human.balance;
-    }
-
-    // ==================== CONTROLES DA APOSTA LATERAL ====================
-    sideBetToggle.addEventListener('click', () => {
-        const human = state.players[0];
-        if (human.status !== 'betting') return;
-
-        state.sideBet.active = !state.sideBet.active;
-        if (!state.sideBet.active) {
-            state.sideBet.amount = 0;
-            state.sideBet.targetId = null;
-            sideBetTarget.value = '';
-        } else {
-            // Sugerir valor padrão de 50 (ou menos se saldo insuficiente)
-            const available = human.balance - human.bet;
-            state.sideBet.amount = Math.min(50, Math.max(0, available));
-            state.sideBet.amount = Math.floor(state.sideBet.amount / 10) * 10;
-        }
-        updateSideBetUI();
-        updateBetDisplay();
-        renderTable();
-    });
-
-    sideBetTarget.addEventListener('change', () => {
-        const val = sideBetTarget.value;
-        state.sideBet.targetId = val ? parseInt(val) : null;
-        updateSideBetUI();
-        renderTable();
-    });
-
-    sideBetMinus.addEventListener('click', () => {
-        if (!state.sideBet.active) return;
-        state.sideBet.amount = Math.max(0, state.sideBet.amount - 10);
-        updateSideBetUI();
-        updateBetDisplay();
-    });
-
-    sideBetPlus.addEventListener('click', () => {
-        if (!state.sideBet.active) return;
-        const human = state.players[0];
-        const available = human.balance - human.bet;
-        state.sideBet.amount = Math.min(available, state.sideBet.amount + 10);
-        updateSideBetUI();
-        updateBetDisplay();
-    });
-
-    function updateSideBetUI() {
-        const human = state.players[0];
-        const active = state.sideBet.active;
-
-        sideBetToggle.classList.toggle('active', active);
-        sideBetToggle.textContent = active ? 'ATIVADA' : 'ATIVAR';
-
-        sideBetTarget.disabled = !active;
-        sideBetMinus.disabled = !active || state.sideBet.amount <= 0;
-        sideBetPlus.disabled = !active ||
-                               !state.sideBet.targetId ||
-                               state.sideBet.amount >= (human.balance - human.bet);
-
-        sideBetDisplay.textContent = `R$ ${state.sideBet.amount}`;
-
-        // Se ativa mas sem alvo selecionado, desabilitar botões +/- de valor
-        if (active && !state.sideBet.targetId) {
-            sideBetMinus.disabled = true;
-            sideBetPlus.disabled = true;
-        }
+                                 totalAllBets > human.balance;
     }
 
     betMinus.addEventListener('click', () => {
@@ -1136,47 +1273,38 @@
         if (human.status !== 'betting') return;
         human.bet = Math.max(state.minBet, human.bet - 10);
         updateBetDisplay();
-        updateSideBetUI();
         renderTable();
     });
 
     betPlus.addEventListener('click', () => {
         const human = state.players[0];
         if (human.status !== 'betting') return;
-        const sideBetCost = state.sideBet.active ? state.sideBet.amount : 0;
-        const maxBet = Math.max(0, human.balance - sideBetCost);
-        human.bet = Math.min(maxBet, human.bet + 10);
-        updateBetDisplay();
-        updateSideBetUI();
-        renderTable();
+        if (getRemainingBalance() >= 10) {
+            human.bet += 10;
+            updateBetDisplay();
+            renderTable();
+        }
     });
 
     confirmBetBtn.addEventListener('click', () => {
         const human = state.players[0];
-        const sideBetCost = state.sideBet.active ? state.sideBet.amount : 0;
-        const totalCost = human.bet + sideBetCost;
+        const totalAllBets = getTotalAllBets();
 
-        if (human.bet < state.minBet || totalCost > human.balance || human.status !== 'betting') return;
+        if (human.bet < state.minBet || totalAllBets > human.balance || human.status !== 'betting') return;
 
-        // Validar aposta lateral
-        if (state.sideBet.active) {
-            if (!state.sideBet.targetId || state.sideBet.amount <= 0) {
-                messageBox.textContent = '⚠️ Escolha um jogador e um valor válido para a aposta lateral.';
-                return;
-            }
-            // Deduzir aposta lateral
-            human.balance -= state.sideBet.amount;
-        }
+        // Registrar o saldo inicial ANTES de debitar qualquer aposta
+        state.initialHumanBalance = human.balance;
 
-        // Deduzir aposta principal de todos
+        // Deduzir aposta principal + apostas laterais
+        human.balance -= totalAllBets;
+
+        // Deduzir apostas dos bots
         for (let p of state.players) {
-            if (p.bet > 0 && p.balance >= p.bet) {
-                p.balance -= p.bet;
-            } else {
-                p.bet = 0;
-                if (p.isBot) {
-                    p.status = 'out';
-                } else if (p.balance < state.minBet) {
+            if (p.isBot) {
+                if (p.bet > 0 && p.balance >= p.bet) {
+                    p.balance -= p.bet;
+                } else {
+                    p.bet = 0;
                     p.status = 'out';
                 }
             }
@@ -1516,6 +1644,7 @@
 
     // ==================== RESOLUÇÃO DA RODADA ====================
     function resolveRound() {
+        stopCountdown();
         state.roundActive = false;
         state.dealerTurn = false;
         const dealerVal = state.dealer.value;
@@ -1575,55 +1704,69 @@
             p.result = aggregatedResult;
         }
 
-        // ==================== NOVO: RESOLVER APOSTA LATERAL ====================
-        resolveSideBet();
+        // Processar Apostas Laterais Múltiplas
+        resolveSideBets();
 
         renderTable();
         showRoundResults();
+
         messageBox.textContent = 'Rodada finalizada!';
         bettingControls.style.display = 'none';
         actionControls.style.display = 'none';
         roundResultControls.style.display = 'flex';
+
+        // Animação financeira e contagem regressiva
+        const human = state.players[0];
+        const netProfit = human.balance - state.initialHumanBalance;
+        showFinancialAnimation(netProfit);
     }
 
-    function resolveSideBet() {
-        if (!state.sideBet.active || !state.sideBet.targetId || state.sideBet.amount <= 0) {
-            state.sideBet.result = null;
-            return;
-        }
+    function resolveSideBets() {
+        state.sideBetsResults = [];
         const human = state.players[0];
-        const target = state.players.find(p => p.id === state.sideBet.targetId);
+        if (!human) return;
 
-        if (!target) {
-            state.sideBet.result = null;
-            return;
+        for (let botIdStr in state.sideBets) {
+            const botId = parseInt(botIdStr);
+            const amount = state.sideBets[botId] || 0;
+            if (amount <= 0) continue;
+
+            const target = state.players.find(p => p.id === botId);
+            if (!target) continue;
+
+            let payout = 0;
+            let outcome = 'lose';
+            let profit = -amount;
+
+            if (target.result === 'win') {
+                payout = amount * 2;
+                profit = amount;
+                outcome = 'win';
+            } else if (target.result === 'blackjack') {
+                payout = amount * 2.5;
+                profit = amount * 1.5;
+                outcome = 'blackjack';
+            } else if (target.result === 'push') {
+                payout = amount;
+                profit = 0;
+                outcome = 'push';
+            } else {
+                payout = 0;
+                profit = -amount;
+                outcome = 'lose';
+            }
+
+            human.balance += payout;
+
+            state.sideBetsResults.push({
+                targetId: botId,
+                targetName: target.name,
+                betAmount: amount,
+                payout: payout,
+                profit: profit,
+                outcome: outcome
+            });
         }
-
-        let payout = 0;
-        let outcome = 'lose';
-
-        if (target.result === 'win') {
-            payout = state.sideBet.amount * 2; // 2:1
-            outcome = 'win';
-        } else if (target.result === 'blackjack') {
-            payout = state.sideBet.amount * 2.5; // 2.5:1
-            outcome = 'win';
-        } else if (target.result === 'push') {
-            payout = state.sideBet.amount; // devolve
-            outcome = 'push';
-        } else {
-            payout = 0;
-            outcome = 'lose';
-        }
-
-        human.balance += payout;
-        human.sideBetIncome = payout - state.sideBet.amount;
-        state.sideBet.result = {
-            outcome,
-            payout,
-            targetName: target.name,
-            profit: payout - state.sideBet.amount,
-        };
     }
 
     function showRoundResults() {
@@ -1639,37 +1782,139 @@
         }
         let msg = parts.join('  •  ');
 
-        // Adicionar info da aposta lateral
-        if (state.sideBet.result) {
-            const sb = state.sideBet.result;
-            const sbText = sb.outcome === 'win'
-                ? `🎯 Aposta lateral em ${sb.targetName}: +R$ ${sb.payout.toFixed(2)} (lucro R$ ${sb.profit.toFixed(2)})`
-                : sb.outcome === 'push'
-                    ? `🎯 Aposta lateral em ${sb.targetName}: devolvida (R$ ${sb.payout.toFixed(2)})`
-                    : `🎯 Aposta lateral em ${sb.targetName}: PERDIDA (-R$ ${state.sideBet.amount.toFixed(2)})`;
-            msg = sbText + '  |  ' + msg;
+        if (state.sideBetsResults.length > 0) {
+            const sbParts = state.sideBetsResults.map(sb => {
+                if (sb.outcome === 'win' || sb.outcome === 'blackjack') {
+                    return `🎯 ${sb.targetName}: +R$ ${sb.profit.toFixed(2)}`;
+                } else if (sb.outcome === 'push') {
+                    return `🎯 ${sb.targetName}: EMPATE`;
+                } else {
+                    return `🎯 ${sb.targetName}: -R$ ${sb.betAmount.toFixed(2)}`;
+                }
+            });
+            msg = sbParts.join('  |  ') + '  •  ' + msg;
         }
 
         messageBox.textContent = msg || 'Rodada finalizada.';
     }
 
+    // ==================== ANIMAÇÃO DE GANHO / PERDA E TIMERS ====================
+    function showFinancialAnimation(netProfit) {
+        financialCard.classList.remove('win', 'lose', 'neutral');
+
+        let formattedVal = '';
+        if (netProfit > 0) {
+            financialCard.classList.add('win');
+            financialTitle.textContent = 'LUCRO NA RODADA';
+            formattedVal = `+ R$ ${netProfit.toFixed(2).replace('.', ',')}`;
+        } else if (netProfit < 0) {
+            financialCard.classList.add('lose');
+            financialTitle.textContent = 'PREJUÍZO NA RODADA';
+            formattedVal = `- R$ ${Math.abs(netProfit).toFixed(2).replace('.', ',')}`;
+        } else {
+            financialCard.classList.add('neutral');
+            financialTitle.textContent = 'RESULTADO NULO';
+            formattedVal = `R$ 0,00`;
+        }
+
+        financialValue.textContent = formattedVal;
+
+        // Detalhes financeiros da rodada
+        financialDetails.innerHTML = '';
+        const human = state.players[0];
+
+        // Aposta principal
+        const mainResultText = human.result === 'win' ? 'Vitória' :
+                              human.result === 'blackjack' ? 'Blackjack' :
+                              human.result === 'push' ? 'Empate' : 'Derrota';
+        const mainRow = document.createElement('div');
+        mainRow.className = 'financial-details-item';
+        mainRow.innerHTML = `<span>Aposta Principal:</span> <strong>${mainResultText}</strong>`;
+        financialDetails.appendChild(mainRow);
+
+        // Apostas laterais
+        if (state.sideBetsResults.length > 0) {
+            state.sideBetsResults.forEach(sb => {
+                const row = document.createElement('div');
+                row.className = 'financial-details-item';
+                let statusText = '';
+                if (sb.outcome === 'win' || sb.outcome === 'blackjack') {
+                    statusText = `<span style="color:#6fcf97;">+R$ ${sb.profit.toFixed(2).replace('.', ',')}</span>`;
+                } else if (sb.outcome === 'push') {
+                    statusText = `<span style="color:#f9e2a1;">EMPATE</span>`;
+                } else {
+                    statusText = `<span style="color:#eb5757;">-R$ ${sb.betAmount.toFixed(2).replace('.', ',')}</span>`;
+                }
+                row.innerHTML = `<span>🎯 ${sb.targetName}:</span> <strong>${statusText}</strong>`;
+                financialDetails.appendChild(row);
+            });
+        }
+
+        financialOverlay.classList.add('active');
+        startCountdown();
+    }
+
+    function hideFinancialAnimation() {
+        if (financialOverlay) {
+            financialOverlay.classList.remove('active');
+        }
+    }
+
+    function stopCountdown() {
+        if (state.countdownTimer) {
+            clearInterval(state.countdownTimer);
+            state.countdownTimer = null;
+        }
+    }
+
+    function startCountdown() {
+        stopCountdown();
+        state.countdownValue = 5;
+        if (countdownNumber) countdownNumber.textContent = state.countdownValue;
+
+        state.countdownTimer = setInterval(() => {
+            state.countdownValue--;
+            if (state.countdownValue > 0) {
+                if (countdownNumber) countdownNumber.textContent = state.countdownValue;
+            } else {
+                stopCountdown();
+                hideFinancialAnimation();
+                const human = state.players[0];
+                if (human && human.balance >= state.minBet) {
+                    startBettingPhase();
+                } else {
+                    messageBox.textContent = 'Saldo insuficiente. Voltando ao menu...';
+                    setTimeout(backToMenu, 1500);
+                }
+            }
+        }, 1000);
+    }
+
     newRoundBtn.addEventListener('click', () => {
+        stopCountdown();
+        hideFinancialAnimation();
         if (state.players.some(p => p.balance >= state.minBet)) {
             startBettingPhase();
         } else {
             messageBox.textContent = 'Todos os jogadores estão sem saldo suficiente. Voltando ao menu.';
-            setTimeout(() => backToMenu(), 1500);
+            setTimeout(backToMenu, 1500);
         }
     });
 
-    backToMenuBtn.addEventListener('click', backToMenu);
+    backToMenuBtn.addEventListener('click', () => {
+        stopCountdown();
+        hideFinancialAnimation();
+        backToMenu();
+    });
 
     function backToMenu() {
+        stopCountdown();
+        hideFinancialAnimation();
         gameScreen.classList.remove('active');
         menuScreen.classList.add('active');
         state.roundActive = false;
         state.bettingPhase = true;
-        state.sideBet = { active: false, targetId: null, amount: 0 };
+        state.sideBets = {};
         renderPlayerSelector();
     }
 
@@ -1689,10 +1934,10 @@
         playersContainer.innerHTML = '';
         for (let p of state.players) {
             const isActive = state.turnIndex === p.id && state.roundActive && !state.dealerTurn && !state.bettingPhase;
-            const isSideBetTarget = state.sideBet.active && state.sideBet.targetId === p.id;
+            const hasSideBet = state.sideBets[p.id] > 0;
 
             const seat = document.createElement('div');
-            seat.className = `player-seat ${isActive ? 'active-turn' : ''} ${isSideBetTarget ? 'side-bet-target' : ''}`;
+            seat.className = `player-seat ${isActive ? 'active-turn' : ''} ${hasSideBet ? 'side-bet-target' : ''}`;
             seat.dataset.playerId = p.id;
 
             const nameDiv = document.createElement('div');
@@ -1711,12 +1956,39 @@
             seat.appendChild(balanceDiv);
             seat.appendChild(betDiv);
 
-            // Indicador de aposta lateral
-            if (p.id === 0 && state.sideBet.active && state.sideBet.amount > 0 && state.bettingPhase) {
-                const sb = document.createElement('div');
-                sb.className = 'side-bet-badge';
-                sb.textContent = `🎯 R$ ${state.sideBet.amount} em ${state.players.find(x => x.id === state.sideBet.targetId)?.name || '?'}`;
-                seat.appendChild(sb);
+            // Indicadores de apostas laterais
+            if (p.id === 0) {
+                const totalSB = getTotalSideBets();
+                if (totalSB > 0 && state.bettingPhase) {
+                    const sb = document.createElement('div');
+                    sb.className = 'side-bet-badge';
+                    sb.textContent = `🎯 Apostas Laterais: R$ ${totalSB}`;
+                    seat.appendChild(sb);
+                }
+            } else {
+                const sbAmt = state.sideBets[p.id] || 0;
+                if (sbAmt > 0) {
+                    if (state.bettingPhase) {
+                        const sb = document.createElement('div');
+                        sb.className = 'side-bet-badge';
+                        sb.textContent = `🎯 Sua aposta: R$ ${sbAmt}`;
+                        seat.appendChild(sb);
+                    } else if (!state.roundActive) {
+                        const sbRes = state.sideBetsResults.find(r => r.targetId === p.id);
+                        if (sbRes) {
+                            const sbInd = document.createElement('div');
+                            sbInd.className = `side-bet-indicator ${sbRes.outcome}`;
+                            if (sbRes.outcome === 'win' || sbRes.outcome === 'blackjack') {
+                                sbInd.textContent = `🎯 +R$ ${sbRes.profit.toFixed(2)}`;
+                            } else if (sbRes.outcome === 'push') {
+                                sbInd.textContent = `🎯 EMPATE`;
+                            } else {
+                                sbInd.textContent = `🎯 -R$ ${sbRes.betAmount.toFixed(2)}`;
+                            }
+                            seat.appendChild(sbInd);
+                        }
+                    }
+                }
             }
 
             // Cartas
@@ -1754,24 +2026,6 @@
             seat.appendChild(valueDiv);
             seat.appendChild(resultDiv);
 
-            // NOVO: resultado da aposta lateral no humano
-            if (p.id === 0 && state.sideBet.result) {
-                const sb = state.sideBet.result;
-                const sbDiv = document.createElement('div');
-                sbDiv.className = 'side-bet-indicator';
-                if (sb.outcome === 'win') {
-                    sbDiv.textContent = `🎯 +R$ ${sb.payout.toFixed(2)} (${sb.targetName})`;
-                    sbDiv.style.color = '#9dff9d';
-                } else if (sb.outcome === 'push') {
-                    sbDiv.textContent = `🎯 devolvido (${sb.targetName})`;
-                    sbDiv.style.color = '#ffe9a1';
-                } else {
-                    sbDiv.textContent = `🎯 -R$ ${state.sideBet.amount.toFixed(2)} (${sb.targetName})`;
-                    sbDiv.style.color = '#ff9d9d';
-                }
-                seat.appendChild(sbDiv);
-            }
-
             if (p.isBot && state.roundActive && state.turnIndex === p.id && !state.dealerTurn && !state.bettingPhase && p.status === 'playing') {
                 const thinking = document.createElement('div');
                 thinking.className = 'thinking-indicator';
@@ -1782,12 +2036,10 @@
             playersContainer.appendChild(seat);
         }
 
-        // Atualizar controles
+        // Atualizar visibilidade das áreas de controles
         if (state.bettingPhase) {
             bettingControls.style.display = 'flex';
-            const botsExist = state.players.some(p => p.isBot);
-            const humanCanBet = state.players[0].balance > state.minBet;
-            sideBetSection.style.display = (botsExist && humanCanBet) ? 'flex' : 'none';
+            renderSideBetControls();
             actionControls.style.display = 'none';
             roundResultControls.style.display = 'none';
         } else if (state.roundActive && !state.dealerTurn) {
@@ -1833,7 +2085,7 @@
 
     // ==================== INICIALIZAÇÃO ====================
     renderPlayerSelector();
-    console.log('Blackjack Royale com Aposta Lateral pronto!');
+    console.log('JackJoker pronto para jogar!');
 </script>
 </body>
 </html>
